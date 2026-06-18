@@ -2,6 +2,7 @@
  This test identifies mismatches between total revenue (from 'revenue' table)
  and monthly revenue (from 'monthly_revenue' table) for each customer.
  It checks the aggregated revenue across all products per customer 
+check
 */
 
 
