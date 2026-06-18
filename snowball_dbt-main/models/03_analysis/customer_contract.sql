@@ -14,6 +14,7 @@ SELECT
     , DATEADD(MONTH, 1, MAX(month_roll))                              AS customer_churn_month
 
 FROM {{ ref('monthly_revenue') }}
+FROM {{ ref('monthly_revenue') }}
 
 WHERE
     arr <> 0.0
