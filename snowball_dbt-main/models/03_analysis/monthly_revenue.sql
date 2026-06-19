@@ -1,30 +1,39 @@
-{{ 
-    config(
-        tags=['analysis']
-        ) 
-}}
+WITH
 
-/* This model processes revenue data by joining it with customer contract information to calculate and aggregate ARR (Annual Recurring Revenue) across different months.*/
+fact_revenue AS (
+    SELECT *
+    FROM your_db.your_schema.fact_revenue
+),
 
-WITH 
+dim_customer AS (
+    SELECT *
+    FROM your_db.your_schema.dim_customer
+),
 
-{{ get_data_from_table("my_source", "fact_revenue") }}
+dim_product AS (
+    SELECT *
+    FROM your_db.your_schema.dim_product
+),
 
-{{ get_data_from_table("my_source", "dim_customer") }}
+dim_entity AS (
+    SELECT *
+    FROM your_db.your_schema.dim_entity
+),
 
-{{ get_data_from_table("my_source", "dim_product") }}
+dim_other AS (
+    SELECT *
+    FROM your_db.your_schema.dim_other
+),
 
-{{ get_data_from_table("my_source", "dim_entity") }}
-
-{{ get_data_from_table("my_source", "dim_other") }}
-
-{{ get_data_from_table("my_source", "dim_calendar") }}
+dim_calendar AS (
+    SELECT *
+    FROM your_db.your_schema.dim_calendar
+),
 
 date_joins AS (
 
     SELECT
-    
-        -- Joining Customer and Revenue Data
+
         MD5(
             CONCAT(
                 COALESCE(UPPER(r.customer_key), ''),
@@ -33,127 +42,162 @@ date_joins AS (
                 COALESCE(UPPER(r.other_key), ''),
                 COALESCE(UPPER(r.revenue_type), '')
             )
-        )                                                   AS revenue_key
-        , r.revenue_type
-        , r.month
-        , r.revenue
-        , r.volume
-        , MIN(month) OVER (PARTITION BY revenue_key)        AS segment_start_month
-        , MAX(month) OVER (PARTITION BY revenue_key)        AS segment_end_month
-        , c.*
-        , p.*
-        , o.*
+        ) AS revenue_key,
 
-    FROM fact_revenue AS r
-    LEFT JOIN 
-        dim_customer AS c
-    ON r.customer_key = c.customer_key
-    LEFT JOIN 
-        dim_product AS p 
-    ON r.product_key = p.product_key
-    LEFT JOIN 
-        dim_entity AS p 
-    ON r.entity_key = p.entity_key
-    LEFT JOIN 
-        dim_other AS o
-    ON r.other_key = o.other_key
-    WHERE
-        r.revenue <> 0.00
-)
+        r.revenue_type,
+        r.month,
+        r.revenue,
+        r.volume,
 
--- Filling in the gaps for each customer with 0 revenue whenever a record of revenue for a customer on a month is not available
-, date_scaffolding AS (
+        MIN(r.month) OVER (
+            PARTITION BY MD5(
+                CONCAT(
+                    COALESCE(UPPER(r.customer_key), ''),
+                    COALESCE(UPPER(r.product_key), ''),
+                    COALESCE(UPPER(r.entity_key), ''),
+                    COALESCE(UPPER(r.other_key), ''),
+                    COALESCE(UPPER(r.revenue_type), '')
+                )
+            )
+        ) AS segment_start_month,
+
+        MAX(r.month) OVER (
+            PARTITION BY MD5(
+                CONCAT(
+                    COALESCE(UPPER(r.customer_key), ''),
+                    COALESCE(UPPER(r.product_key), ''),
+                    COALESCE(UPPER(r.entity_key), ''),
+                    COALESCE(UPPER(r.other_key), ''),
+                    COALESCE(UPPER(r.revenue_type), '')
+                )
+            )
+        ) AS segment_end_month,
+
+        c.*,
+        p.*,
+        o.*
+
+    FROM fact_revenue r
+
+    LEFT JOIN dim_customer c
+        ON r.customer_key = c.customer_key
+
+    LEFT JOIN dim_product p
+        ON r.product_key = p.product_key
+
+    LEFT JOIN dim_entity e
+        ON r.entity_key = e.entity_key
+
+    LEFT JOIN dim_other o
+        ON r.other_key = o.other_key
+
+    WHERE r.revenue <> 0.00
+),
+
+date_scaffolding AS (
 
     SELECT
 
-        revenue_key
-        , revenue_type
-        , {{ get_dimension('customer', 2) }} 
-        , {{ get_dimension('product', 2) }} 
-        , {{ get_dimension('entity', 2) }} 
-        , {{ get_dimension('other', 2) }} 
-        , c.month_roll
-        , CASE
-            WHEN
-                c.month_roll > d.month
-                OR c.month_roll <> d.month
-                THEN 0
+        d.revenue_key,
+        d.revenue_type,
+
+        c.customer_key,
+        p.product_key,
+        e.entity_key,
+        o.other_key,
+
+        cal.month_roll,
+
+        CASE
+            WHEN cal.month_roll <> d.month THEN 0
             ELSE d.volume
-        END AS volume
-        , CASE
-            WHEN
-                c.month_roll > d.month
-                OR c.month_roll <> d.month
-                THEN 0
+        END AS volume,
+
+        CASE
+            WHEN cal.month_roll <> d.month THEN 0
             ELSE d.revenue
         END AS mrr
 
-    FROM dim_calendar AS c
+    FROM dim_calendar cal
 
-    INNER JOIN date_joins AS d
-        ON c.month_roll <= DATEADD(MONTH,22, d.segment_end_month) 
-        AND c.month_roll >= d.segment_start_month
-)
+    INNER JOIN date_joins d
+        ON cal.month_roll <= DATEADD(MONTH, 22, d.segment_end_month)
+       AND cal.month_roll >= d.segment_start_month
+),
 
--- Create monthly_revenue table
-, aggregated_revenue AS (
-
-    SELECT
-
-        revenue_key                                                                         AS monthly_revenue_key
-        , revenue_type
-        , {{ get_dimension('customer', 2) }} 
-        , {{ get_dimension('product', 2) }} 
-        , {{ get_dimension('entity', 2) }} 
-        , {{ get_dimension('other', 2) }} 
-        , month_roll
-        , SUM(mrr)                  AS mrr
-        , SUM(volume)               AS volume
-        -- Add 1 back to YTD year start here so YTD start aligns with month selected i.e. 4 = start in April
-        , {{ extract_date_part("MONTH", "DATEADD(MONTH, -" ~ var('ytd_year_start') ~ " + 1, month_roll)") }} AS ytd_helper
-    FROM 
-        date_scaffolding
-    GROUP BY
-        revenue_key
-        , {{ get_dimension('customer', 2) }} 
-        , {{ get_dimension('product', 2) }} 
-        , {{ get_dimension('entity', 2) }} 
-        , {{ get_dimension('other', 2) }} 
-        , month_roll
-        , revenue_type
-)
-
-, churn_month AS (
+aggregated_revenue AS (
 
     SELECT
-        customer_key
-        , product_key
-        , MAX(month_roll)   AS product_churn_month
-    FROM
-        aggregated_revenue
-    WHERE
-        mrr <> 0.0
-    GROUP BY
-        customer_key
-        , product_key
-)
 
--- Create monthly_revenue table
+        revenue_key AS monthly_revenue_key,
+        revenue_type,
+
+        customer_key,
+        product_key,
+        entity_key,
+        other_key,
+
+        month_roll,
+
+        SUM(mrr) AS mrr,
+        SUM(volume) AS volume,
+
+        DATE_PART(
+            MONTH,
+            DATEADD(
+                MONTH,
+                -{{ var('ytd_year_start') }} + 1,
+                month_roll
+            )
+        ) AS ytd_helper
+
+    FROM date_scaffolding
+
+    GROUP BY
+        revenue_key,
+        revenue_type,
+        customer_key,
+        product_key,
+        entity_key,
+        other_key,
+        month_roll
+),
+
+churn_month AS (
+
+    SELECT
+        customer_key,
+        product_key,
+        MAX(month_roll) AS product_churn_month
+
+    FROM aggregated_revenue
+
+    WHERE mrr <> 0.0
+
+    GROUP BY
+        customer_key,
+        product_key
+)
 
 SELECT
-    a.*
-    , CASE 
-        WHEN a.revenue_type = 'Recurring' THEN mrr * 12
-        WHEN month_roll <= product_churn_month THEN SUM(mrr) OVER (
-                PARTITION BY monthly_revenue_key
-                ORDER BY month_roll 
-                ROWS BETWEEN 11 PRECEDING AND CURRENT ROW)
+
+    a.*,
+
+    CASE
+        WHEN a.revenue_type = 'Recurring' THEN a.mrr * 12
+
+        WHEN a.month_roll <= c.product_churn_month THEN
+            SUM(a.mrr) OVER (
+                PARTITION BY a.monthly_revenue_key
+                ORDER BY a.month_roll
+                ROWS BETWEEN 11 PRECEDING AND CURRENT ROW
+            )
+
         ELSE 0
     END AS arr
 
-FROM
-    aggregated_revenue a
-LEFT JOIN
-    churn_month c
-    ON a.customer_key = c.customer_key 
-    AND a.product_key = c.product_key
+FROM aggregated_revenue a
+
+LEFT JOIN churn_month c
+    ON a.customer_key = c.customer_key
+   AND a.product_key = c.product_key;
