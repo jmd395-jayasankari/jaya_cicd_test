@@ -1,0 +1,58 @@
+name: Incoming PR
+
+run-name: PR opened by ${{ github.actor }}
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  run-snowflake-test-dbt-job:
+    name: Run on Incoming PR
+    runs-on: ubuntu-latest
+
+    environment: dbt
+
+    env:
+      SNOWFLAKE_CLI_FEATURES_ENABLE_DBT: true
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_DATABASE: ${{ vars.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_SCHEMA: ${{ vars.SNOWFLAKE_SCHEMA }}
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Install Snowflake CLI
+        uses: snowflakedb/snowflake-cli-action@v2.0
+        with:
+          use-oidc: true
+
+      - name: Check Snowflake CLI Version
+        run: snow --version
+
+      - name: Test Snowflake Connection
+        run: snow connection test -x
+
+      - name: Deploy Test dbt Project
+        run: |
+          snow dbt deploy tester_snowball_dbt_project \
+          --source ./snowball_dbt-main \
+          --dbt-version 1.10.15 \
+          --force \
+          -x
+
+      - name: List dbt Projects
+        run: snow dbt list -x
+
+      - name: Build and Test dbt Project
+        run: |
+          snow dbt execute -x \
+          tester_snowball_dbt_project \
+          build \
+          --target dev
