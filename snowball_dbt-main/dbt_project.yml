@@ -46,6 +46,7 @@ models:
       +tags: ["reporting"]
 
 vars:
+  my_database: MY_TRIAL_DB
   #Update YTD start here. Financial year starts in April = 4
   ytd_year_start: 4
   monthly: 1
