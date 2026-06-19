@@ -33,7 +33,7 @@ dispatch:
 models:
   +materialized: table
   Snowball_dbt:
-    +database: "{{ var('my_database') }}"
+    +database: MY_TRIAL_DB
     # Config indicated by + and applies to all files under models/example/
     02_datamart:
       +schema: datamart
