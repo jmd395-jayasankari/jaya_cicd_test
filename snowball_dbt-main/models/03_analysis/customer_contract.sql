@@ -21,6 +21,10 @@ WHERE
     arr <> 0.0
     AND revenue_type IN ('Recurring','Re-occurring')
 
+WHERE
+    arr <> 0.0
+    AND revenue_type IN ('Recurring','Re-occurring')
+
 GROUP BY 
     {{ get_dimension_from_table('monthly_revenue', 'customer_level') }} 
 
