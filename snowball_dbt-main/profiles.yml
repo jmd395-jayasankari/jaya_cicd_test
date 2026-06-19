@@ -1,0 +1,13 @@
+snowball_dbt:
+  target: dev
+
+  outputs:
+    dev:
+      type: snowflake
+      account: "_"
+      user: "_"
+      role: ACCOUNTADMIN
+      database: MY_TRIAL_DB
+      schema: CICD_TEST
+      warehouse: COMPUTE_WH
+      threads: 8
