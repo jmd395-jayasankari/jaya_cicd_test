@@ -1,2 +1,2 @@
 SELECT *
-FROM monthly_revenue;
+FROM monthly_revenue
