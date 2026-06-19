@@ -5,4 +5,17 @@ sources:
   name: my_source
   schema: "{{ var('my_schema') }}"
   tables:
-  - name: "{{ var('my_table') }}"
+  - name: fact_revenue
+  - name: dim_customer
+  - name: dim_product
+  - name: dim_entity
+  - name: dim_other
+  - name: dim_calendar
+
+
+
+
+
+
+
+

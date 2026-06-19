@@ -33,19 +33,23 @@ dispatch:
 models:
   +materialized: table
   Snowball_dbt:
-    +database: "{{ var('my_database') }}"
+    +database: MY_TRIAL_DB
+    +schema: CICD_TEST
     # Config indicated by + and applies to all files under models/example/
     02_datamart:
       +schema: datamart
       +tags : ["datamart"] 
     03_analysis:
-      +schema: analysis
+      # +schema: analysis
       +tags: ["analysis"]
     04_report:
-      +schema: reporting
+      # +schema: reporting
       +tags: ["reporting"]
 
 vars:
+  my_database: MY_TRIAL_DB
+  my_schema: CICD_TEST
+  my_table: CUSTOMER
   #Update YTD start here. Financial year starts in April = 4
   ytd_year_start: 4
   monthly: 1
