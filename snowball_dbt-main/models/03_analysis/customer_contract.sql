@@ -17,6 +17,9 @@ FROM {{ ref('monthly_revenue') }}
 FROM {{ ref('monthly_revenue') }}
     FROM {{ ref('monthly_revenue') }}
 
+FROM {{ ref('monthly_revenue') }}
+FROM {{ ref('monthly_revenue') }}
+    FROM {{ ref('monthly_revenue') }}
 WHERE
     arr <> 0.0
     AND revenue_type IN ('Recurring','Re-occurring')
