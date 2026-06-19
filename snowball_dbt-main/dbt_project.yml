@@ -47,6 +47,7 @@ models:
 
 vars:
   my_database: MY_TRIAL_DB
+  my_schema: CICD_TEST
   #Update YTD start here. Financial year starts in April = 4
   ytd_year_start: 4
   monthly: 1
