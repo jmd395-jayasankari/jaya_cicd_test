@@ -20,6 +20,9 @@ WITH get_product_start_end_month AS (
     WHERE
         arr <> 0
         AND revenue_type IN ('Recurring','Re-occurring')
+     WHERE
+        arr <> 0
+        AND revenue_type IN ('Recurring','Re-occurring')
 
 )
 
