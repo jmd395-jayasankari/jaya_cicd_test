@@ -1,4 +1,4 @@
-snowball_dbt:
+Snowball_dbt:
   target: dev
 
   outputs:
