@@ -40,10 +40,10 @@ models:
       +schema: datamart
       +tags : ["datamart"] 
     03_analysis:
-      +schema: analysis
+      # +schema: analysis
       +tags: ["analysis"]
     04_report:
-      +schema: reporting
+      # +schema: reporting
       +tags: ["reporting"]
 
 vars:
