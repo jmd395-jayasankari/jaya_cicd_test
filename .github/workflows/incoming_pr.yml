@@ -46,7 +46,7 @@ jobs:
 
       - name: Deploy Test dbt Project
         run: |
-          snow dbt deploy tester_snowball_dbt_project \
+          snow dbt deploy DBT_SNOWBALL \
           --source ./snowball_dbt-main \
           --dbt-version 1.10.15 \
           --force \
@@ -58,6 +58,6 @@ jobs:
       - name: Build and Test dbt Project
         run: |
           snow dbt execute -x \
-          tester_snowball_dbt_project \
+          DBT_SNOWBALL \
           build \
           --target dev
