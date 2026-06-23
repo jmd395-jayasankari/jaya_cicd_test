@@ -3,4 +3,5 @@ SELECT
     'dummy' AS name,
     CURRENT_DATE() AS created_date, 
     current_timestamp as time,
+    current_timestamp as time2,
     CURRENT_TIMESTAMP() AS now
