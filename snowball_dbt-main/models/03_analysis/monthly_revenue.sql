@@ -6,4 +6,5 @@ SELECT
     current_timestamp as time,
     current_timestamp as time2,
     CURRENT_TIMESTAMP() AS now, 
-    'everyone' as everyone
+    'everyone' as everyone, 
+    'everyone' as everyone_2
