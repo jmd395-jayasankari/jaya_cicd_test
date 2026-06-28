@@ -1,4 +1,4 @@
-CREATE OR REPLACE TASK my_trial_db.cicd_test."03_analysis_execution"
+CREATE OR REPLACE TASK my_trial_db.cicd_test.monthly_revenue_task
 WAREHOUSE = COMPUTE_WH
 SCHEDULE = 'USING CRON 0 0 1 1 * UTC'
 AS
