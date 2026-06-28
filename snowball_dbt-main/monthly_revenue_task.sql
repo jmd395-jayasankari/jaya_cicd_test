@@ -5,5 +5,5 @@ AS
 EXECUTE dbt project DBT_SNOWBALL
 -- ARGS = 'run --select Snowball_dbt.03_analysis.monthly_revenue --target dev --full-refresh';
 
--- ARGS = 'build --select 03_analysis --target dev';
-ARGS = 'run --target dev --full-refresh';
+ARGS = 'build --select 03_analysis.monthly_revenue --target dev';
+-- ARGS = 'run --target dev --full-refresh';
