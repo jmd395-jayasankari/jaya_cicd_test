@@ -4,4 +4,5 @@ SELECT
     'task_created' as task,
      'task_created' as task2,
     CURRENT_TIMESTAMP() AS ts, 
-    'test' as one
+    'test' as one, 
+    'test' as two
