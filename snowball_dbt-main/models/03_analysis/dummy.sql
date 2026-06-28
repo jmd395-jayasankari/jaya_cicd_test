@@ -4,5 +4,6 @@ SELECT
     'dummy' AS name,
     CURRENT_DATE() AS created_date,
     'CHANGED_TEST' AS test_column, 
-    'testing_task' as task, 
-    'Hi' as all
+    'testing_task' as task1, 
+    'Hi' as all,
+    'testing_task' as task2, 
