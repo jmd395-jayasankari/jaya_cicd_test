@@ -92,8 +92,8 @@ jobs:
 
       - name: Resume Tasks
         run: |
-          snow sql -q "ALTER TASK my_trial_db.cicd_test.monthly_revenue_task RESUME" -x
           snow sql -q "ALTER TASK my_trial_db.cicd_test.dummy_task RESUME" -x
+          snow sql -q "ALTER TASK my_trial_db.cicd_test.monthly_revenue_task RESUME" -x
 
 
       #  Step 9: Trigger Task (MAIN STEP)
