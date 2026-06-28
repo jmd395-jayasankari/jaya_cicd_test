@@ -80,8 +80,15 @@ jobs:
         run: |
           snow sql -f snowball_dbt-main/dummy_task.sql -x
 
+          
+   #  Step 7: Suspend parent (required before graph update)
+      - name: Suspend Parent Task
+        run: |
+          snow sql -q "ALTER TASK my_trial_db.cicd_test.monthly_revenue_task SUSPEND" -x
 
-      #  Step 7: Resume Task (important)
+
+
+      #  Step 8: Resume Task (important)
 
       - name: Resume Tasks
         run: |
@@ -89,7 +96,7 @@ jobs:
           snow sql -q "ALTER TASK my_trial_db.cicd_test.dummy_task RESUME" -x
 
 
-      #  Step 8: Trigger Task (MAIN STEP)
+      #  Step 9: Trigger Task (MAIN STEP)
       - name: Trigger Task
         run: |
           snow sql -q "EXECUTE TASK my_trial_db.cicd_test.monthly_revenue_task" -x
