@@ -71,10 +71,15 @@ jobs:
       #     --target dev
 
 
-    #  Step 6: Create / Update Task
-      - name: Create or Update Task
+
+      - name: Create Monthly Revenue Task
         run: |
-          snow sql -f snowball_dbt-main/create_task.sql -x
+          snow sql -f snowball_dbt-main/monthly_revenue_task.sql -x
+
+      - name: Create Dummy Task
+        run: |
+          snow sql -f snowball_dbt-main/dummy_task.sql -x
+
 
       #  Step 7: Resume Task (important)
 
