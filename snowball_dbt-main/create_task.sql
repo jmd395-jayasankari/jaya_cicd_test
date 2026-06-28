@@ -3,4 +3,4 @@ WAREHOUSE = COMPUTE_WH
 SCHEDULE = 'USING CRON 0 0 1 1 * UTC'
 AS
 EXECUTE dbt project DBT_SNOWBALL
-ARGS = 'build --select models/03_analysis --target dev';
+ARGS = 'build --select 03_analysis --target dev --full-refresh';
