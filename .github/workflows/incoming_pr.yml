@@ -56,12 +56,30 @@ jobs:
           --force \
           -x
 
-      - name: List dbt Projects
-        run: snow dbt list -x
+      # - name: List dbt Projects
+      #   run: snow dbt list -x
 
-      - name: Build and Test dbt Project
+      # - name: Build and Test dbt Project
+      #   run: |
+      #     snow dbt execute -x \
+      #     DBT_SNOWBALL \
+      #     build \
+      #     --target dev
+
+
+    #  Step 6: Create / Update Task
+      - name: Create or Update Task
         run: |
-          snow dbt execute -x \
-          DBT_SNOWBALL \
-          build \
-          --target dev
+          snow sql -f snowball_dbt-main/create_task.sql -x
+
+      #  Step 7: Resume Task (important)
+      - name: Resume Task
+        run: |
+          snow sql -q "ALTER TASK my_trial_db.cicd_test.\"03_analysis_execution\" RESUME" -x
+
+      #  Step 8: Trigger Task (MAIN STEP)
+      - name: Trigger Task
+        run: |
+          snow sql -q "EXECUTE TASK my_trial_db.cicd_test.\"03_analysis_execution\"" -x
+
+      
