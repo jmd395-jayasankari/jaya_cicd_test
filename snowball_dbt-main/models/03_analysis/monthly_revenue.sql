@@ -10,4 +10,4 @@ SELECT
     CURRENT_TIMESTAMP() AS now, 
     'everyone' as everyone, 
     'everyone' as everyone_2,
-    "testing_task" task
+    'testing_task' task
