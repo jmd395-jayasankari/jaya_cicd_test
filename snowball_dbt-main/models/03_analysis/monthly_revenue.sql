@@ -6,5 +6,6 @@ SELECT
     'new_column_value' AS new_col, 
     'task_created_new' as new, 
     'test' as one, 
-    'test' as two
+    'test' as two, 
+    'test' as three
 
