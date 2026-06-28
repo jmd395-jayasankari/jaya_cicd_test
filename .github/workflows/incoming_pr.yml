@@ -54,6 +54,7 @@ jobs:
           --source ./snowball_dbt-main \
           --dbt-version 1.10.15 \
           --force \
+          --replace \
           -x
 
       # - name: List dbt Projects
