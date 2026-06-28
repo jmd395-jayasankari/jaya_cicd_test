@@ -7,4 +7,5 @@ SELECT
     current_timestamp as time2,
     CURRENT_TIMESTAMP() AS now, 
     'everyone' as everyone, 
-    'everyone' as everyone_2
+    'everyone' as everyone_2,
+    "testing_task" task
