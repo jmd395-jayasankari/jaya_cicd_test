@@ -7,5 +7,6 @@ SELECT
     'task_created_new' as new, 
     'test' as one, 
     'test' as two, 
-    'test' as three
+    'test' as three, 
+     'test' as three_2
 
