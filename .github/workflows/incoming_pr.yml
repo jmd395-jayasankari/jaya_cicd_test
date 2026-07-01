@@ -48,9 +48,9 @@ jobs:
       - name: Test Snowflake Connection
         run: snow connection test -x
 
-      - name: Drop old dbt project
-        run: |
-          snow sql -q "DROP DBT PROJECT IF EXISTS DBT_SNOWBALL" -x
+      # - name: Drop old dbt project
+      #   run: |
+      #     snow sql -q "DROP DBT PROJECT IF EXISTS DBT_SNOWBALL" -x
 
       - name: Deploy Test dbt Project
         run: |

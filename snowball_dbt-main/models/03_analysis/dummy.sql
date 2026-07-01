@@ -6,4 +6,5 @@ SELECT
     CURRENT_TIMESTAMP() AS ts, 
     'test' as one, 
     'test' as two, 
-    'test' as three
+    'test' as three, 
+    'test'  as four
